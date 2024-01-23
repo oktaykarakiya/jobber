@@ -34,10 +34,22 @@ let id = 0
 
 async function operation_impossible(browser, current_page){
   
-  let url_vienna = `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at13&lang=en`
-  let url_eures = `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at,ch&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
+  let url_vienna = `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at13&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
+  let url_swiss =  `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=ch&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
+  
   let inserts = await puppet.scrape(browser, url_vienna)
+
   await inserts.forEach(async insert => { 
+    id ++
+
+    let job = new Job({id, page: current_page, insert})
+    await job.save()
+     
+  })
+
+  let inserts2 = await puppet.scrape(browser, url_swiss)
+  
+  await inserts2.forEach(async insert => { 
     id ++
 
     let job = new Job({id, page: current_page, insert})
