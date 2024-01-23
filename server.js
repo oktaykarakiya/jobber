@@ -70,11 +70,6 @@ async function scrape_jobs(){
 
     
   }
-
-
-
-
-  console.log(inserts)
 }
 
 scrape_jobs()
