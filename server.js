@@ -1,6 +1,6 @@
 import express from 'express'
 const app = express()
-const port = 3000
+const port = 3001
 
 import database from './database/config.js'
 database()
@@ -12,6 +12,8 @@ import fs from 'fs'
 
 import Puppet from './utils/Puppet.js'
 let puppet = new Puppet()
+
+import Job from './database/Job.js'
 
 
 function track(data) {
@@ -27,19 +29,55 @@ function track(data) {
 }
 
 
+let currentActiveSessions = 0
+let id = 0
+
+async function operation_impossible(browser, current_page){
+  
+  
+  let url_eures = `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at,ch&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
+  let inserts = await puppet.scrape(browser, url_eures)
+  await inserts.forEach(async insert => { 
+    id ++
+
+    let job = await new Job({id, page: current_page, insert})
+    await job.save()
+     
+  })
+
+  return currentActiveSessions--
+}
+
+
 let page = 1
-
-let url_eures = `https://europa.eu/eures/portal/jv-se/search?page=${page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at,ch&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
-
-async function scrape_jobs(eures){
+async function scrape_jobs(){
   let browser = await puppet.startBrowser()
-  let inserts = await puppet.scrape(browser, eures)
-  track(inserts)
+
+  while(true){
+    if(page > 200){
+      break
+    }
+    console.log(page)
+    if(currentActiveSessions < 2){
+      operation_impossible(browser, page)
+      currentActiveSessions++
+      page++
+      continue
+    } else {
+      await operation_impossible(browser, page)
+      page++
+    }
+
+    
+  }
+
+
+
+
   console.log(inserts)
 }
 
-scrape_jobs(url_eures)
-
+scrape_jobs()
 
 
 
