@@ -40,7 +40,7 @@ async function operation_impossible(browser, current_page){
   await inserts.forEach(async insert => { 
     id ++
 
-    let job = await new Job({id, page: current_page, insert})
+    let job = new Job({id, page: current_page, insert})
     await job.save()
      
   })
@@ -58,15 +58,19 @@ async function scrape_jobs(){
       break
     }
     console.log(page)
-    if(currentActiveSessions < 2){
-      operation_impossible(browser, page)
-      currentActiveSessions++
-      page++
-      continue
-    } else {
-      await operation_impossible(browser, page)
-      page++
-    }
+
+    await operation_impossible(browser, page)
+    page++
+    
+    // if(currentActiveSessions < 2){
+    //   operation_impossible(browser, page)
+    //   currentActiveSessions++
+    //   page++
+    //   continue
+    // } else {
+    //   await operation_impossible(browser, page)
+    //   page++
+    // }
 
     
   }
