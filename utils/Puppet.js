@@ -38,7 +38,7 @@ class Puppet {
         await page.setViewport({ width: 1280, height: 720 })
 
         await page.goto(url)
-        await randomPause(111)
+        await randomPause(200)
         const elements = await page.evaluate(() => {
             const nodeList = document.querySelectorAll('jv-result-summary.ng-star-inserted');
             // Convert NodeList to an array
@@ -61,7 +61,7 @@ class Puppet {
             return data;
           });
  
-        await randomPause(32)
+        await randomPause(50)
 
         await page.close()
 
