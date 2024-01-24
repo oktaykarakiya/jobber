@@ -8,7 +8,7 @@ database()
 import dotenv from 'dotenv'
 dotenv.config()
 
-import fs from 'fs'
+import fs, { linkSync } from 'fs'
 
 import Puppet from './utils/Puppet.js'
 let puppet = new Puppet()
@@ -83,25 +83,31 @@ async function scrape_jobs(){
 //scrape_jobs()
 
 
-let test = read_file('./utils/best')
-console.log(test.length)
+let jobs = read_file('./utils/best')
 
 let countera = 0
 
 async function get_details(){
   let chrom = await puppet.startBrowser()
-  test.forEach(async (job) => {
-    if(job.name.insert.location.toLowerCase().includes('switzerland')){
-      const link = `https://europa.eu${job.name.insert.link}`
 
+  let cunt = 0
+  while(true){
+
+
+    if(jobs[cunt].name.insert.location.toLowerCase().includes('switzerland')){
+      const link = `https://europa.eu${jobs[cunt].name.insert.link}`
 
       let teeett = await puppet.get_emails(chrom, link)
-
       
-      console.log(teeett)
+      if(teeett){
+        console.log(teeett)
+      }
 
     }
-  })
+
+
+    cunt++
+  }
 
 }
 

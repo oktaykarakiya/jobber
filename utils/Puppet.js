@@ -82,14 +82,16 @@ class Puppet {
         await page.setViewport({ width: 1280, height: 720 })
 
         await page.goto(url)
-        await randomPause(100)
+        await randomPause(50)
         const elements = await page.evaluate(() => { return document.body.innerText; });
  
         await randomPause(1)
 
         await page.close()
 
-        return extract_emails(elements)  
+        const h = await extract_emails(elements)  
+
+        return h
     }
 }
 
