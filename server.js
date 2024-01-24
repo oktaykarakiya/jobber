@@ -15,18 +15,10 @@ let puppet = new Puppet()
 
 import Job from './database/Job.js'
 
+import read_file from './utils/read_file.js'
+import write_file from './utils/write_file.js'
 
-function track(data) {
-  const jsonData = JSON.stringify(data, null, 2)
 
-  fs.writeFile('tracking.json', jsonData, (err) => {
-    if (err) {
-      console.error('An error occurred:', err);
-      return;
-    }
-    console.log('File has been saved.');
-  })
-}
 
 
 let currentActiveSessions = 0
@@ -88,12 +80,32 @@ async function scrape_jobs(){
   }
 }
 
-scrape_jobs()
+//scrape_jobs()
 
 
+let test = read_file('./utils/best')
+console.log(test.length)
+
+let countera = 0
+
+async function get_details(){
+  let chrom = await puppet.startBrowser()
+  test.forEach(async (job) => {
+    if(job.name.insert.location.toLowerCase().includes('switzerland')){
+      const link = `https://europa.eu${job.name.insert.link}`
 
 
+      let teeett = await puppet.get_emails(chrom, link)
 
+      
+      console.log(teeett)
+
+    }
+  })
+
+}
+
+get_details()
 
 
   app.get('/', (req, res) => {

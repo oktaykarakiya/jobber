@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 puppeteer.use(StealthPlugin())
 
+import extract_emails from './extract_emails.js'
 
 function randomPause(n) {
     return new Promise((resolve) => {
@@ -16,7 +17,7 @@ function randomPause(n) {
 class Puppet {
     async startBrowser(){
         try {
-            const browser = await puppeteer.launch({ headless: "new" })
+            const browser = await puppeteer.launch({ headless: false })
             return browser
 
         } catch (error) {
@@ -66,6 +67,29 @@ class Puppet {
         await page.close()
 
         return elements  
+    }
+
+    async get_emails(chromium, url){
+        const page = await chromium.newPage()
+
+        await page.setExtraHTTPHeaders({
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+            'upgrade-insecure-requests': '1',
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'en-US,en;q=0.9'
+        })
+        await page.setViewport({ width: 1280, height: 720 })
+
+        await page.goto(url)
+        await randomPause(100)
+        const elements = await page.evaluate(() => { return document.body.innerText; });
+ 
+        await randomPause(1)
+
+        await page.close()
+
+        return extract_emails(elements)  
     }
 }
 
