@@ -8,110 +8,43 @@ database()
 import dotenv from 'dotenv'
 dotenv.config()
 
-import fs, { linkSync } from 'fs'
-
 import Puppet from './utils/Puppet.js'
 let puppet = new Puppet()
 
-import Job from './database/Job.js'
+
 
 import read_file from './utils/read_file.js'
 import write_file from './utils/write_file.js'
+write_file({test: 'emails'}, 'test')
 
-
-
-
-let currentActiveSessions = 0
-let id = 0
-
-async function operation_impossible(browser, current_page){
-  
-  let url_vienna = `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=at13&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
-  let url_swiss =  `https://europa.eu/eures/portal/jv-se/search?page=${current_page}&resultsPerPage=50&orderBy=BEST_MATCH&locationCodes=ch&keywordsEverywhere=entwickler,node,rust,c,c%2B%2B,translator,ubersetzer,software,embedded&lang=en`
-  
-  let inserts = await puppet.scrape(browser, url_vienna)
-
-  await inserts.forEach(async insert => { 
-    id ++
-
-    let job = new Job({id, page: current_page, insert})
-    await job.save()
-     
-  })
-
-  let inserts2 = await puppet.scrape(browser, url_swiss)
-  
-  await inserts2.forEach(async insert => { 
-    id ++
-
-    let job = new Job({id, page: current_page, insert})
-    await job.save()
-     
-  })
-
-  return currentActiveSessions--
-}
-
-
-let page = 1
-async function scrape_jobs(){
-  let browser = await puppet.startBrowser()
-
-  while(true){
-    if(page > 200){
-      break
-    }
-    console.log(page)
-
-    await operation_impossible(browser, page)
-    page++
-
-    // if(currentActiveSessions < 2){
-    //   operation_impossible(browser, page)
-    //   currentActiveSessions++
-    //   page++
-    //   continue
-    // } else {
-    //   await operation_impossible(browser, page)
-    //   page++
-    // }
-
-    
-  }
-}
-
-//scrape_jobs()
-
-
-let jobs = read_file('./utils/best')
-
-let countera = 0
+let jobs = read_file('./best')
 
 async function get_details(){
   let chrom = await puppet.startBrowser()
 
-  let cunt = 0
-  while(true){
+  let emails = []
 
 
-    if(jobs[cunt].name.insert.location.toLowerCase().includes('switzerland')){
-      const link = `https://europa.eu${jobs[cunt].name.insert.link}`
+  for(let x = 0; x < jobs.length; x++){
+    if(jobs[x].name.insert.location.toLowerCase().includes('austria')){
+      const link = `https://europa.eu${jobs[x].name.insert.link}`
 
       let teeett = await puppet.get_emails(chrom, link)
-      
+
       if(teeett){
         console.log(teeett)
+        emails.push(teeett[0])
       }
-
+      
     }
-
-
-    cunt++
   }
 
-}
+  write_file(emails, 'emails')
 
+}
 get_details()
+
+
 
 
   app.get('/', (req, res) => {
