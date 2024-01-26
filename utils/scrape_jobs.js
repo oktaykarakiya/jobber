@@ -1,4 +1,8 @@
-import Job from './database/Job.js'
+import Job from '../database/Job.js'
+
+import Puppet from './Puppet.js'
+let puppet = new Puppet()
+
 
 async function scrape(browser, current_page){
   
@@ -7,20 +11,23 @@ async function scrape(browser, current_page){
     
     let inserts = await puppet.scrape(browser, url_vienna)
   
-    await inserts.forEach(async insert => { 
-  
-      let job = new Job({page: current_page, insert})
+    for(let x = 0; x < inserts.length; x++){
+      let job = new Job(inserts[x])
+
+      console.log(inserts[x].email)
+      
       await job.save()
-       
-    })
-  
-    return
+    }
+    
+
+    return inserts.length
   }
 
 
 async function scrape_jobs(){
-    let page = 1
   let browser = await puppet.startBrowser()
+
+  let page = 1
 
   while(true){
     if(page > 200){
@@ -28,11 +35,14 @@ async function scrape_jobs(){
     }
     console.log(page)
 
-    await scrape(browser, page)
+    let stopper = await scrape(browser, page)
     page++
-
-    
+    if(stopper < 50){
+      return
+    }
   }
+
+  return
 }
 
-export default scrape()
+export default scrape_jobs

@@ -25,4 +25,3 @@ async function get_jobs(){
   })
   console.log('fuuuck')
 }
-//get_jobs()

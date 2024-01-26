@@ -15,18 +15,18 @@ function randomPause(n) {
 
 
 class Puppet {
-    async startBrowser(){
+    async startBrowser() {
         try {
             const browser = await puppeteer.launch({ headless: false })
             return browser
 
         } catch (error) {
-            console.log({error: 1, where: 'GptPuppet.startBrowser', errorContent: error.message})
+            console.log({ error: 1, where: 'GptPuppet.startBrowser', errorContent: error.message })
             throw error
         }
     }
 
-    async scrape(chromium, url){
+    async scrape(chromium, url) {
         const page = await chromium.newPage()
 
         await page.setExtraHTTPHeaders({
@@ -51,47 +51,33 @@ class Puppet {
                 const link = linkElement ? linkElement.getAttribute('href') : null;
                 const location = element.querySelector('span.jv-result-location-country').textContent
                 const date = element.querySelector('em.jv-result-last-modification-date').textContent;
-          
+
                 return {
-                  title,
-                  link,
-                  location,
-                  date,
+                    title,
+                    link,
+                    location,
+                    date,
                 };
             });
+
             return data;
-          });
- 
+        });
+
+
+        for (let x = 0; x < elements.length; x++) {
+            await page.goto(`https://europa.eu${elements[x].link}`)
+            await randomPause(50)
+            const body = await page.evaluate(() => { return document.body.innerText; });
+            const emails = await extract_emails(body)
+            elements[x].email = emails
+        }
+
+
         await randomPause(50)
 
         await page.close()
 
-        return elements  
-    }
-
-    async get_emails(chromium, url){
-        const page = await chromium.newPage()
-
-        await page.setExtraHTTPHeaders({
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-            'upgrade-insecure-requests': '1',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'en-US,en;q=0.9'
-        })
-        await page.setViewport({ width: 1280, height: 720 })
-
-        await page.goto(url)
-        await randomPause(50)
-        const elements = await page.evaluate(() => { return document.body.innerText; });
- 
-        await randomPause(1)
-
-        await page.close()
-
-        const h = await extract_emails(elements)  
-
-        return h
+        return elements
     }
 }
 
