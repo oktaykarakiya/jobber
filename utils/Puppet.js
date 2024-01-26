@@ -57,6 +57,7 @@ class Puppet {
                     link,
                     location,
                     date,
+                    emails: null
                 };
             });
 
@@ -69,7 +70,7 @@ class Puppet {
             await randomPause(50)
             const body = await page.evaluate(() => { return document.body.innerText; });
             const emails = await extract_emails(body)
-            elements[x].email = emails
+            elements[x].emails = emails
         }
 
 

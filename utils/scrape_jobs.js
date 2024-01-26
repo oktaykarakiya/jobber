@@ -12,11 +12,17 @@ async function scrape(browser, current_page){
     let inserts = await puppet.scrape(browser, url_vienna)
   
     for(let x = 0; x < inserts.length; x++){
-      let job = new Job(inserts[x])
+      try {
 
-      console.log(inserts[x].email)
-      
-      await job.save()
+        let job = new Job(inserts[x])
+        console.log(inserts[x].emails)
+        await job.save()
+
+      } catch (error) {
+        console.log(error.stack)
+
+      }
+
     }
     
 
@@ -33,7 +39,6 @@ async function scrape_jobs(){
     if(page > 200){
       break
     }
-    console.log(page)
 
     let stopper = await scrape(browser, page)
     page++
