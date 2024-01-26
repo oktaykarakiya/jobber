@@ -6,7 +6,7 @@ const job_schema = new Schema({
   link: { type: String },
   location: { type: String },
   date: { type: String },
-  email: { type: String },
+  emails: [{ type: String }],
 }, { timestamps: true })
 
 
