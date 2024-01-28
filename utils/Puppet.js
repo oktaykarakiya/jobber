@@ -4,6 +4,8 @@ puppeteer.use(StealthPlugin())
 
 import extract_emails from './extract_emails.js'
 
+import Job from '../database/Job.js'
+
 function randomPause(n) {
     return new Promise((resolve) => {
         const randomTime = Math.floor(Math.random() * 1000 + n * 100) + 400;
@@ -50,16 +52,30 @@ class Puppet {
                 const linkElement = element.querySelector('a.jv-result-summary-title'); // Replace with the actual class name of your link
                 const link = linkElement ? linkElement.getAttribute('href') : null;
                 const location = element.querySelector('span.jv-result-location-country').textContent
-                const date = element.querySelector('em.jv-result-last-modification-date').textContent;
+                const date = element.querySelector('em.jv-result-last-modification-date').textContent
+                const employer = element.querySelector('span.jv-result-employer-name').textContent
+
+                let schedule
+                let category 
+                try {
+                    schedule = element.querySelector('span.jv-result-position-schedule-code').textContent
+                    category = element.querySelector('span.jv-result-job-category').textContent
+                } catch (error) {
+                    
+                }
 
                 return {
                     title,
                     link,
                     location,
                     date,
-                    emails: null
+                    emails: null,
+                    employer,
+                    schedule,
+                    category
                 };
-            });
+            }); 
+
 
             return data;
         });
@@ -71,6 +87,14 @@ class Puppet {
             const body = await page.evaluate(() => { return document.body.innerText; });
             const emails = await extract_emails(body)
             elements[x].emails = emails
+
+            try {
+                let job = new Job(elements[x])
+                await job.save()
+            } catch (error) {
+                console.log(error.message) // TODO: telegram it in the future
+            }
+
         }
 
 

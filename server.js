@@ -1,6 +1,6 @@
 import express from 'express'
 const app = express()
-const port = 3001
+const port = 3023
 
 import database from './database/config.js'
 database()
